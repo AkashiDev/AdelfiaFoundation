@@ -1,46 +1,59 @@
 // src/components/Donate.js
 import React, { useState } from 'react';
-import QRCode from 'qrcode.react';
+import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import QRCode from 'qrcode.react';
 
 const Donate = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [amount, setAmount] = useState('');
-  const [qrCode, setQrCode] = useState('');
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', amount: '' });
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newDonation = {
-      name,
-      email,
-      phone,
-      amount,
-      confirmed: false,
-      createdAt: new Date(),
-    };
-    await db.collection('donations').add(newDonation);
-    const upiString = `upi://pay?pa=NGO_UPI_ID&pn=NGO_NAME&am=${amount}`;
-    setQrCode(upiString);
+    try {
+      const docRef = await addDoc(collection(db, 'donations'), {
+        ...formData,
+        confirmed: false,
+        createdAt: new Date(),
+      });
+      const qrData = `upi://pay?pa=YOUR_UPI_ID@upi&pn=Hands of God&am=${formData.amount}&cu=INR`;
+      setQrCodeUrl(qrData);
+      setIsFormSubmitted(true);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+    }
+  };
+
+  const handleDone = () => {
+    alert('Thank you for your donation! We will send a confirmation email once we receive the payment.');
+    setFormData({ name: '', email: '', phone: '', amount: '' });
+    setQrCodeUrl('');
+    setIsFormSubmitted(false);
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400, mx: 'auto' }}>
-      <TextField label="Name" variant="outlined" value={name} onChange={(e) => setName(e.target.value)} required />
-      <TextField label="Email" type="email" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <TextField label="Phone" variant="outlined" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-      <TextField label="Amount in INR" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-      <Button type="submit" variant="contained" color="primary">Confirm</Button>
-      {qrCode && (
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <QRCode value={qrCode} />
-          <Button onClick={() => alert('Thank you for your donation! We will confirm via email.')}>Done</Button>
-        </Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400, mx: 'auto' }}>
+      {!isFormSubmitted ? (
+        <form onSubmit={handleSubmit}>
+          <TextField label="Name" name="name" variant="outlined" value={formData.name} onChange={handleChange} required />
+          <TextField label="Email" name="email" type="email" variant="outlined" value={formData.email} onChange={handleChange} required />
+          <TextField label="Phone" name="phone" variant="outlined" value={formData.phone} onChange={handleChange} required />
+          <TextField label="Amount (INR)" name="amount" type="number" variant="outlined" value={formData.amount} onChange={handleChange} required />
+          <Button type="submit" variant="contained" color="primary">Confirm</Button>
+        </form>
+      ) : (
+        <>
+          <QRCode value={qrCodeUrl} />
+          <Button onClick={handleDone} variant="contained" color="primary">Done</Button>
+        </>
       )}
     </Box>
   );
