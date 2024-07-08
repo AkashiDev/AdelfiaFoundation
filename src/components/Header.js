@@ -9,7 +9,7 @@ const Header = () => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Hands of Gods
+          Adelfia foundation
         </Typography>
         <Box>
           <Button color="inherit" component={Link} to="/">Home</Button>

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const HomePage = () => {
   return (
     <div>
-      <h1>Welcome to Hands of GOD</h1>
+      <h1>Welcome to Adelfia</h1>
       <nav>
         <ul>
           <li><Link to="/missions">Our Missions</Link></li>
