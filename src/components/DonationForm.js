@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import QRCode from 'qrcode.react';
 import { db } from '../firebase';
+import './DonationForm.css';
+
 
 const DonationForm = () => {
   const [name, setName] = useState('');
@@ -27,12 +29,40 @@ const DonationForm = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="text" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-        <input type="number" placeholder="Amount in INR" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-        <button type="submit">Confirm</button>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+        <input
+          type="text"
+          placeholder="Name1"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          style={{ marginBottom: '100px' }}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{ marginBottom: '10px',marginTop: '50px' }}
+        />
+        <input
+          type="text"
+          placeholder="Phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          required
+          style={{ marginBottom: '10px' }}
+        />
+        <input
+          type="number"
+          placeholder="Amount in INR"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+          style={{ marginBottom: '10px' }}
+        />
+        <button type="submit" style={{ marginBottom: '10px' }}>Confirm</button>
       </form>
       {qrCode && (
         <div>
